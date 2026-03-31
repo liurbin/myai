@@ -1,28 +1,47 @@
+<div align="center">
+
 # MyAI
 
-> Save your team's working AI profiles. Restore them on new machines. Reuse them across tools.
+### Portable AI profiles for real teams
 
-## The Problem
+Save a working AI setup once. Restore it on a new machine. Reuse it across tools.
 
-Teams are building real workflows around AI tools — prompts, MCP servers, persistent instructions, skills. But the reusable profiles behind them are scattered and locked in:
+<p>
+  <img alt="release alpha" src="https://img.shields.io/badge/release-0.1.0--alpha.1-ffb000?style=flat-square">
+  <img alt="node 18+" src="https://img.shields.io/badge/node-18%2B-43853d?style=flat-square">
+  <img alt="typescript cli" src="https://img.shields.io/badge/TypeScript-CLI-3178c6?style=flat-square">
+  <img alt="local first" src="https://img.shields.io/badge/storage-local--first-111111?style=flat-square">
+</p>
 
-- `.claude/` — Claude Code rules, skills, MCP config
-- `.agents/` — Codex CLI agent config
-- `.cursorrules` — Cursor rules
-- Internal docs, chat histories, copied snippets
+<p>
+  <a href="#see-it-in-60-seconds"><strong>Quickstart</strong></a> ·
+  <a href="#install"><strong>Install</strong></a> ·
+  <a href="#why-teams-reach-for-it"><strong>Why</strong></a> ·
+  <a href="#what-myai-actually-manages"><strong>Model</strong></a> ·
+  <a href="#docs"><strong>Docs</strong></a>
+</p>
 
-This creates recurring failures:
+</div>
 
-1. A useful profile works for one person but is not inherited by the team.
-2. A new machine requires manual reconfiguration.
-3. A profile proven in one tool cannot be reused in another.
-4. Teams accumulate AI knowledge but cannot reliably retrieve or operationalize it.
+> The AI workflow that "works" inside a team is usually real, valuable, and trapped on one laptop.  
+> MyAI turns that fragile setup into a reusable local-first `profile`.
 
-**Switch tools = start from zero. New teammate = start from zero. New machine = start from zero.**
+**Alpha status:** narrow by design. The current path is `Claude Code -> MyAI repo -> Codex CLI`.
 
-## What is MyAI?
+## Why Teams Reach For It
 
-MyAI is an **AI workflow portability layer** — a CLI tool that lets teams save, restore, and sync working AI profiles across tools, machines, and team members.
+When a team says "our AI workflow works," what that often means is:
+
+- one person figured out the setup
+- everyone else copies fragments by hand
+- a new machine means rebuilding from memory
+- a new tool means starting over
+
+MyAI exists to make the setup itself portable, not just the output.
+
+## What MyAI Actually Manages
+
+MyAI is a CLI for saving, restoring, and syncing working AI profiles across tools, machines, and team members.
 
 When a profile declares `sync.targets: [codex]`, both `profile apply` and `bootstrap` include a Codex sync preview in the logged bundle and restore the supported Codex config after materializing the profile.
 
@@ -39,6 +58,18 @@ In product terms:
 - `profile` = a reusable bundle of assets
 - `workflow` = the task the profile helps complete
 
+## Why It Feels Different
+
+| Most AI repos save | MyAI saves |
+| --- | --- |
+| isolated prompts | a portable working `profile` |
+| machine-local tweaks | materialized, rollback-safe local state |
+| tool-specific configs | reusable assets plus explicit sync |
+| tribal knowledge | searchable reuse and restore telemetry |
+
+This alpha does not try to support every tool.
+It tries to prove that one valuable setup can survive tool switching, teammate onboarding, and machine resets.
+
 ### Core Principles
 
 - **Local-first** — your data lives in `~/.myai/`, a plain Git repo you own
@@ -46,6 +77,15 @@ In product terms:
 - **Team-oriented** — workflows are inheritable, not trapped with one person
 - **Narrow first** — solve one portability path well before expanding
 - **Standard formats** — Markdown + YAML, no vendor lock-in
+
+## See It In 60 Seconds
+
+```bash
+myai profile list --repo ./examples/sample-repo
+myai profile show code-review --repo ./examples/sample-repo
+myai profile apply code-review --repo ./examples/sample-repo --target-dir /tmp/myai-demo --target-config /tmp/myai-demo-codex.toml --yes
+myai report summary --repo ./examples/sample-repo --since all
+```
 
 ## Install
 
@@ -65,15 +105,6 @@ npx @myai/cli help
 Requirements:
 
 - Node.js 18+
-
-## Quickstart
-
-```bash
-myai profile list --repo ./examples/sample-repo
-myai profile show code-review --repo ./examples/sample-repo
-myai profile apply code-review --repo ./examples/sample-repo --target-dir /tmp/myai-demo --target-config /tmp/myai-demo-codex.toml --yes
-myai report summary --repo ./examples/sample-repo --since all
-```
 
 To create a fresh local repository instead of using the sample:
 
