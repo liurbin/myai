@@ -1,0 +1,30 @@
+version: 1
+kind: profile
+name: Team Default
+slug: team-default
+scope: team
+description: Shared team baseline for everyday engineering work
+tags:
+  - default
+  - team
+  - baseline
+source:
+  tool: claude-code
+  imported_at: 2026-03-30T15:10:00Z
+assets:
+  prompts:
+    - prompts/code-review.md
+  preferences:
+    - preferences/team-review-rules.md
+  mcps:
+    - mcps/github.yaml
+    - mcps/context7.yaml
+  skills:
+    - skills/review-pr/SKILL.md
+apply:
+  mode: merge
+  confirm: true
+sync:
+  source: claude-code
+  targets:
+    - codex

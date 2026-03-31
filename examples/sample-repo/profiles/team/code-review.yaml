@@ -1,0 +1,30 @@
+version: 1
+kind: profile
+name: Code Review
+slug: code-review
+scope: team
+description: Review pull requests with team rules and GitHub context
+tags:
+  - review
+  - backend
+  - engineering
+source:
+  tool: claude-code
+  imported_at: 2026-03-30T15:10:00Z
+assets:
+  prompts:
+    - prompts/code-review.md
+  preferences:
+    - preferences/team-review-rules.md
+  mcps:
+    - mcps/github.yaml
+    - mcps/context7.yaml
+  skills:
+    - skills/review-pr/SKILL.md
+apply:
+  mode: merge
+  confirm: true
+sync:
+  source: claude-code
+  targets:
+    - codex

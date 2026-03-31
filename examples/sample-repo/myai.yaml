@@ -1,0 +1,5 @@
+version: 1
+name: acme-ai
+default_profile_scope: team
+supported_targets:
+  - codex

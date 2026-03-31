@@ -1,0 +1,59 @@
+{
+  "name": "@myai/cli",
+  "version": "0.1.0-alpha.1",
+  "description": "CLI for saving, restoring, and syncing working AI profiles across tools, machines, and teams.",
+  "keywords": [
+    "ai",
+    "vault",
+    "prompts",
+    "skills",
+    "mcp",
+    "claude-code",
+    "codex",
+    "cursor",
+    "sync",
+    "dotfiles"
+  ],
+  "author": "Eddie",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "myai": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,28 @@
+version: 1
+kind: profile
+name: Eddie Debug
+slug: eddie-debug
+scope: personal
+description: Personal debugging profile for backend investigation and quick triage
+tags:
+  - debug
+  - personal
+  - backend
+source:
+  tool: claude-code
+  imported_at: 2026-03-30T15:10:00Z
+assets:
+  prompts:
+    - prompts/backend-debug.md
+  preferences:
+    - preferences/personal-style.md
+  mcps:
+    - mcps/context7.yaml
+  skills: []
+apply:
+  mode: merge
+  confirm: true
+sync:
+  source: claude-code
+  targets:
+    - codex

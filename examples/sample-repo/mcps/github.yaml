@@ -1,0 +1,10 @@
+version: 1
+kind: mcp
+name: github
+transport: stdio
+command: npx
+args:
+  - -y
+  - "@modelcontextprotocol/server-github"
+env:
+  GITHUB_TOKEN: "${GITHUB_TOKEN}"
