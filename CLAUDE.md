@@ -1,68 +1,25 @@
-# MyAI Project Guidelines
+# Claude Code Guide
 
-## What is this?
+## Source of Truth
 
-MyAI is an AI workflow portability layer — a CLI tool that lets teams save, restore, and sync working AI profiles across tools, machines, and team members. Current portability path: Claude Code → Codex CLI.
+Use `AGENTS.md` for contributor workflow, command conventions, and PR expectations. Use `README.md` for public product positioning. Use `docs/specs/cli-command-spec.md`, `docs/specs/profile-schema.md`, and `docs/specs/repository-schema.md` for behavior, storage, and validation rules. If guidance conflicts, follow the specs.
 
-## Product Concepts
+## Product Frame
 
-- `asset` — a stored building block (prompt, MCP config, preference, skill)
-- `profile` — a named, reusable bundle of assets (the core product object)
-- `scope` — profiles live under `team/` or `personal/`
-- `sync` — translating a profile's assets into another tool's format (currently Codex CLI)
+MyAI is a local-first CLI for developers and teams that need to save, restore, and sync reusable AI profiles across tools and machines. The current v0.1 wedge is `Claude Code -> MyAI repo -> Codex CLI`. The product is profile-centric: `asset` is the storage unit, `profile` is the main object users manage, and `scope` is `team` or `personal`.
 
-## Tech Stack
+## Working Rules
 
-- TypeScript + Node.js (ESM)
-- CLI-only (no server, no GUI)
-- Standard formats: Markdown for prompts/preferences, YAML for profiles/MCPs/config
-- Git for storage and sync
-- Vitest for testing
-
-## Project Structure
-
-```
-src/
-├── cli.ts              # Executable shim
-├── index.ts            # CLI command routing and handlers
-├── types.ts            # Core type definitions (Profile, McpAsset, EventLogEntry)
-└── lib/
-    ├── apply.ts         # profile apply + rollback (with backup)
-    ├── assets.ts        # Asset file reading
-    ├── claude.ts        # Claude Code import adapter
-    ├── codex.ts         # Codex CLI sync adapter
-    ├── format.ts        # Slugify and formatting utils
-    ├── fs.ts            # File system helpers
-    ├── logging.ts       # Event log (pilot telemetry)
-    ├── profile-store.ts # Profile CRUD (list, load, search)
-    ├── repo.ts          # Repository init and path resolution
-    ├── reporting.ts     # Report summary generation
-    ├── validation.ts    # Schema and reference validation
-    └── yaml.ts          # YAML read/write wrapper
-
-tests/                   # Vitest test files (*.test.ts)
-docs/specs/              # Technical specs (repo schema, profile schema, CLI spec, field mapping)
-docs/runbooks/           # Pilot runbooks
-examples/sample-repo/    # Demo fixtures for manual testing and pilots
-```
-
-## Key Decisions
-
-- Local-first: all data in `~/.myai/`, no cloud dependency
-- CLI-first: management through commands, not config editing
-- v0.1 scope: Claude Code → Codex CLI only, one portability path
-- Profile as core object: assets are referenced by profiles, not managed standalone
-- Lossy sync is explicit: unsupported fields produce warnings, never silently dropped
-
-## Development
-
-- Branch: work on `main`
-- Commits: short imperative subjects (e.g. `Add profile rollback command`)
-- Tests: add/update tests for every CLI behavior change and import/sync edge case
-- Before merge: `npm run build && npm test`
+- Runtime code lives in `src/`; tests live in `tests/`; demo fixtures live in `examples/sample-repo/`.
+- Use TypeScript ESM, 2-space indentation, `kebab-case.ts` filenames, `camelCase` functions, and `PascalCase` types.
+- Keep CLI language explicit and verb-first.
+- Add or update tests for any CLI behavior, import/sync mapping, or apply/rollback change.
+- Verify with `npm run build` and `npm test`; use `npm run test:watch` only for local iteration.
+- Match the existing Conventional Commit prefixes such as `feat:`, `fix:`, `docs:`, and `chore:`.
 
 ## Key Documents
 
-- [STRATEGY.md](./STRATEGY.md) — current product strategy (authoritative)
-- [PRD-v0.1.md](./PRD-v0.1.md) — v0.1 scope and requirements
-- [docs/specs/](./docs/specs/) — technical specs (repo schema, profile schema, CLI spec, field mapping)
+- [STRATEGY.md](./STRATEGY.md) — product strategy and wedge
+- [PRD-v0.1.md](./PRD-v0.1.md) — scope, requirements, and success metrics
+- [docs/specs/](./docs/specs/) — CLI, profile, repository, and mapping specs
+- [docs/runbooks/](./docs/runbooks/) — pilot execution and validation notes
