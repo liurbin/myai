@@ -21,6 +21,8 @@ Save a working AI setup once. Restore it on a new machine. Reuse it across tools
   <a href="#docs"><strong>Docs</strong></a>
 </p>
 
+<img src="./docs/assets/readme-hero.svg" alt="MyAI turns scattered AI tool config into a reusable profile that can be restored on new machines and synced to Codex." width="920">
+
 </div>
 
 > The AI workflow that "works" inside a team is usually real, valuable, and trapped on one laptop.  
@@ -69,6 +71,14 @@ In product terms:
 
 This alpha does not try to support every tool.
 It tries to prove that one valuable setup can survive tool switching, teammate onboarding, and machine resets.
+
+## Who It Is For
+
+| Good fit | Not the first target |
+| --- | --- |
+| engineering teams already using Claude Code and Codex | solo prompt collectors with no repeat workflow |
+| teams onboarding new machines or teammates often | teams looking for hosted analytics first |
+| operators who want files, Git, and local control | teams needing every AI tool supported on day one |
 
 ### Core Principles
 
