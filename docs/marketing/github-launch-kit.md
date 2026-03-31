@@ -6,7 +6,7 @@ Use this page when setting the public GitHub repository metadata.
 
 Recommended:
 
-> Portable AI profiles for real teams. Save a working Claude Code setup once, restore it on a new machine, and sync the reusable parts to Codex.
+> Portable AI profiles for developers and teams. Save a working Claude Code setup once, restore it on a new machine, and sync the reusable parts to Codex.
 
 Shorter option:
 
@@ -34,6 +34,7 @@ Shorter option:
 ## Social Preview
 
 - Source art: [social-preview.svg](../assets/social-preview.svg)
+- Exported asset: [social-preview.png](../assets/social-preview.png)
 - Recommended export: `1280x640` PNG
 - Suggested alt text:
   `MyAI turns scattered AI tool setup into one reusable profile that restores cleanly on new machines and across tools.`
