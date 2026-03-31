@@ -17,6 +17,7 @@ Save a working AI setup once. Restore it on a new machine. Reuse it across tools
   <a href="#see-it-in-60-seconds"><strong>Quickstart</strong></a> ·
   <a href="#install"><strong>Install</strong></a> ·
   <a href="#why-teams-reach-for-it"><strong>Why</strong></a> ·
+  <a href="#current-support-matrix"><strong>Support</strong></a> ·
   <a href="#what-myai-actually-manages"><strong>Model</strong></a> ·
   <a href="#docs"><strong>Docs</strong></a>
 </p>
@@ -79,6 +80,17 @@ It tries to prove that one valuable setup can survive tool switching, teammate o
 | engineering teams already using Claude Code and Codex | solo prompt collectors with no repeat workflow |
 | teams onboarding new machines or teammates often | teams looking for hosted analytics first |
 | operators who want files, Git, and local control | teams needing every AI tool supported on day one |
+
+## Current Support Matrix
+
+| Capability | Status | Notes |
+| --- | --- | --- |
+| Import from Claude Code | yes | Reads `CLAUDE.md` and supported MCP config from `~/.claude.json` |
+| Local profile search/list/show | yes | Search telemetry is written to local event logs |
+| Apply and rollback | yes | Materializes to `.myai-applied/` with backup and restore flow |
+| Sync to Codex | yes | Current target is the supported Codex MCP subset |
+| Pilot reporting | yes | Repo-local summary for reuse, search, actor, and machine metrics |
+| Cursor / ChatGPT / hosted sync | not yet | Deliberately out of `v0.1` scope |
 
 ### Core Principles
 
@@ -186,6 +198,7 @@ v0.1 focuses on one narrow promise:
 | [claude-code-to-codex-mapping.md](./docs/specs/claude-code-to-codex-mapping.md) | Supported portability subset and explicit warning policy |
 | [fresh-machine-pilot-runbook.md](./docs/runbooks/fresh-machine-pilot-runbook.md) | Step-by-step fresh-machine and pilot validation flow |
 | [internal-dry-run-2026-03-30.md](./docs/reports/internal-dry-run-2026-03-30.md) | Repo-local dry run record and current validation gaps |
+| [github-launch-kit.md](./docs/marketing/github-launch-kit.md) | Suggested GitHub repo description, topics, tagline, and social preview metadata |
 | [examples/README.md](./examples/README.md) | Sample repository for demos, pilots, and manual testing |
 | [IDEA-archive.md](./docs/archive/IDEA-archive.md) | Early vision exploration (historical) |
 

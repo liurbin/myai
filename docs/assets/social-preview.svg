@@ -1,0 +1,81 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">MyAI social preview</title>
+  <desc id="desc">A GitHub social card showing MyAI as a portability layer that turns scattered AI tool setup into one reusable profile that restores across tools and machines.</desc>
+  <defs>
+    <linearGradient id="bg" x1="74" y1="56" x2="1202" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF7ED"/>
+      <stop offset="1" stop-color="#EEF2FF"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="220" y1="346" x2="1048" y2="346" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB923C" stop-opacity="0.06"/>
+      <stop offset="0.5" stop-color="#FB923C" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#3B82F6" stop-opacity="0.1"/>
+    </linearGradient>
+    <filter id="shadow" x="-40" y="-40" width="1360" height="720" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#0F172A" flood-opacity="0.14"/>
+    </filter>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    </style>
+  </defs>
+
+  <rect x="20" y="20" width="1240" height="600" rx="32" fill="url(#bg)"/>
+  <rect x="20.5" y="20.5" width="1239" height="599" rx="31.5" stroke="#E5E7EB"/>
+
+  <text x="84" y="96" class="sans" fill="#64748B" font-size="16" letter-spacing="0.18em">PORTABLE AI PROFILES</text>
+  <text x="84" y="164" class="sans" fill="#0F172A" font-size="56" font-weight="700">MyAI</text>
+  <text x="84" y="220" class="sans" fill="#0F172A" font-size="34" font-weight="700">Stop rebuilding your AI setup from scratch.</text>
+  <text x="84" y="258" class="sans" fill="#475569" font-size="22">Save one working setup. Restore it on a new machine. Reuse it across tools.</text>
+
+  <rect x="84" y="294" width="174" height="40" rx="20" fill="#111827"/>
+  <text x="171" y="320" text-anchor="middle" class="sans" fill="#F8FAFC" font-size="15" font-weight="700">v0.1.0-alpha.1</text>
+  <rect x="272" y="294" width="336" height="40" rx="20" fill="#FFF1E8" stroke="#FED7AA"/>
+  <text x="440" y="320" text-anchor="middle" class="mono" fill="#C2410C" font-size="15" font-weight="700">Claude Code -&gt; MyAI -&gt; Codex</text>
+
+  <rect x="176" y="374" width="928" height="164" rx="82" fill="url(#glow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="92" y="382" width="220" height="152" rx="24" fill="#FFFFFF"/>
+    <rect x="530" y="350" width="292" height="216" rx="30" fill="#0F172A"/>
+    <rect x="968" y="382" width="220" height="152" rx="24" fill="#FFFFFF"/>
+  </g>
+
+  <rect x="92.5" y="382.5" width="219" height="151" rx="23.5" stroke="#E5E7EB"/>
+  <rect x="968.5" y="382.5" width="219" height="151" rx="23.5" stroke="#E5E7EB"/>
+
+  <text x="118" y="422" class="sans" fill="#0F172A" font-size="18" font-weight="700">Scattered today</text>
+  <text x="118" y="446" class="sans" fill="#64748B" font-size="15">Useful setup spread across tools.</text>
+  <rect x="118" y="470" width="78" height="28" rx="14" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="157" y="488" text-anchor="middle" class="mono" fill="#334155" font-size="13">.claude/</text>
+  <rect x="204" y="470" width="78" height="28" rx="14" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="243" y="488" text-anchor="middle" class="mono" fill="#334155" font-size="13">.agents/</text>
+  <rect x="118" y="506" width="84" height="28" rx="14" fill="#FFF7ED" stroke="#FED7AA"/>
+  <text x="160" y="524" text-anchor="middle" class="mono" fill="#9A3412" font-size="13">prompts</text>
+  <rect x="210" y="506" width="72" height="28" rx="14" fill="#ECFDF3" stroke="#BBF7D0"/>
+  <text x="246" y="524" text-anchor="middle" class="mono" fill="#166534" font-size="13">mcps</text>
+
+  <rect x="554" y="376" width="244" height="28" rx="14" fill="#1E293B"/>
+  <circle cx="576" cy="390" r="4" fill="#FB923C"/>
+  <circle cx="592" cy="390" r="4" fill="#FACC15"/>
+  <circle cx="608" cy="390" r="4" fill="#34D399"/>
+  <text x="628" y="395" class="mono" fill="#CBD5E1" font-size="13">profile.yaml</text>
+  <text x="560" y="436" class="sans" fill="#F8FAFC" font-size="24" font-weight="700">One portable profile</text>
+  <text x="560" y="466" class="sans" fill="#CBD5E1" font-size="16">The reusable setup around the workflow.</text>
+  <rect x="560" y="492" width="220" height="28" rx="14" fill="#132238" stroke="#334155"/>
+  <text x="578" y="510" class="mono" fill="#CBD5E1" font-size="13">prompts/code-review.md</text>
+  <rect x="560" y="528" width="180" height="28" rx="14" fill="#132238" stroke="#334155"/>
+  <text x="578" y="546" class="mono" fill="#CBD5E1" font-size="13">sync: [codex]</text>
+
+  <text x="994" y="422" class="sans" fill="#0F172A" font-size="18" font-weight="700">Restored later</text>
+  <text x="994" y="446" class="sans" fill="#64748B" font-size="15">Setup recovered without guesswork.</text>
+  <rect x="994" y="470" width="168" height="28" rx="14" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="1078" y="488" text-anchor="middle" class="mono" fill="#334155" font-size="13">new machine</text>
+  <rect x="994" y="506" width="168" height="28" rx="14" fill="#EFF6FF" stroke="#BFDBFE"/>
+  <text x="1078" y="524" text-anchor="middle" class="mono" fill="#1D4ED8" font-size="13">codex config</text>
+
+  <path d="M312 458C412 458 438 410 530 410" stroke="#FB923C" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 12"/>
+  <path d="M822 410C914 410 940 458 968 458" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 12"/>
+
+  <text x="84" y="582" class="sans" fill="#64748B" font-size="18">Local-first CLI for teams that want reusable AI setups, not fragile one-off configs.</text>
+</svg>
