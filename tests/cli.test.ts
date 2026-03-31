@@ -100,13 +100,13 @@ describe("myai cli", () => {
     expect(code).toBe(0);
     expect(stdout.toString()).toContain("Usage: myai <init|profile|bootstrap|report|help> [...args]");
     expect(stdout.toString()).toContain(
-      "myai profile apply <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes]",
+      "myai profile apply <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes] [--verbose]",
     );
     expect(stdout.toString()).toContain(
       "myai report summary [--since 14d|all|YYYY-MM-DD] [--format text|json]",
     );
     expect(stdout.toString()).toContain(
-      "myai bootstrap <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes]",
+      "myai bootstrap <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes] [--verbose]",
     );
     expect(stderr.toString()).toBe("");
   });
@@ -203,11 +203,58 @@ describe("myai cli", () => {
     });
 
     expect(code).toBe(0);
+    expect(stdout.toString()).toContain("Reads: CLAUDE.md and matching project mcpServers from ~/.claude.json.");
     await expect(
       readFile(path.join(repoDir, "profiles", "team", "code-review.yaml"), "utf8"),
     ).resolves.toContain("slug: code-review");
     await expect(readFile(path.join(repoDir, "mcps", "github.yaml"), "utf8")).resolves.toContain("kind: mcp");
     expect(stderr.toString()).toContain("Ignored .claude/settings.local.json");
+  });
+
+  it("derives an import slug from the source directory when omitted", async () => {
+    const homeDir = await createTempDir("myai-home-");
+    const repoDir = path.join(homeDir, ".myai");
+    const sourceRoot = await createTempDir("myai-source-root-");
+    const sourceDir = path.join(sourceRoot, "backend-review");
+
+    await mkdir(sourceDir, { recursive: true });
+    await runCli(["init"], {
+      cwd: homeDir,
+      env: { ...process.env, HOME: homeDir },
+      stdout: new BufferWriter(),
+      stderr: new BufferWriter(),
+      stdin: { isTTY: false },
+    });
+
+    await writeFile(path.join(sourceDir, "CLAUDE.md"), "# Backend review rules\n");
+    await writeFile(
+      path.join(homeDir, ".claude.json"),
+      JSON.stringify({
+        projects: {
+          [sourceDir]: {
+            mcpServers: {},
+          },
+        },
+      }),
+    );
+
+    const stdout = new BufferWriter();
+    const stderr = new BufferWriter();
+    const code = await runCli(["profile", "import", "--from", "claude-code"], {
+      cwd: sourceDir,
+      env: { ...process.env, HOME: homeDir },
+      stdout,
+      stderr,
+      stdin: { isTTY: false },
+    });
+
+    expect(code).toBe(0);
+    expect(stdout.toString()).toContain("Imported profile 'backend-review'");
+    expect(stdout.toString()).toContain("Derived slug: backend-review");
+    await expect(
+      readFile(path.join(repoDir, "profiles", "team", "backend-review.yaml"), "utf8"),
+    ).resolves.toContain("slug: backend-review");
+    expect(stderr.toString()).toBe("");
   });
 
   it("syncs MCP assets to a Codex config file", async () => {
@@ -412,8 +459,12 @@ describe("myai cli", () => {
 
     expect(code).toBe(0);
     expect(stdout.toString()).toContain("Applied profile 'code-review'");
-    expect(stdout.toString()).toContain(`Codex config: ${targetConfigPath}`);
-    expect(stdout.toString()).toContain("Synced MCP servers: github");
+    expect(stdout.toString()).toContain("Materialized to:");
+    expect(stdout.toString()).toContain("Codex config synced.");
+    expect(stdout.toString()).not.toContain("Preview:");
+    expect(stdout.toString()).not.toContain("Rendered bundle:");
+    expect(stdout.toString()).not.toContain(`Codex config: ${targetConfigPath}`);
+    expect(stdout.toString()).not.toContain("Synced MCP servers: github");
     expect(stderr.toString()).toContain("Warning: Skill reference");
     await expect(
       readFile(path.join(targetDir, ".myai-applied", "team", "code-review", "profile.yaml"), "utf8"),
@@ -435,6 +486,53 @@ describe("myai cli", () => {
       target_tool: "codex",
       status: "partial_success",
     });
+  });
+
+  it("shows apply detail paths in verbose mode", async () => {
+    const homeDir = await createTempDir("myai-home-");
+    const repoDir = path.join(homeDir, ".myai");
+    const targetDir = await createTempDir("myai-target-");
+    const targetConfigPath = path.join(homeDir, ".codex-custom", "config.toml");
+
+    await runCli(["init"], {
+      cwd: homeDir,
+      env: { ...process.env, HOME: homeDir },
+      stdout: new BufferWriter(),
+      stderr: new BufferWriter(),
+      stdin: { isTTY: false },
+    });
+
+    await writeProfileFixture(repoDir);
+
+    const stdout = new BufferWriter();
+    const stderr = new BufferWriter();
+    const code = await runCli(
+      [
+        "profile",
+        "apply",
+        "code-review",
+        "--target-dir",
+        targetDir,
+        "--target-config",
+        targetConfigPath,
+        "--yes",
+        "--verbose",
+      ],
+      {
+        cwd: repoDir,
+        env: { ...process.env, HOME: homeDir },
+        stdout,
+        stderr,
+        stdin: { isTTY: false },
+      },
+    );
+
+    expect(code).toBe(0);
+    expect(stdout.toString()).toContain(`Codex config: ${targetConfigPath}`);
+    expect(stdout.toString()).toContain("Synced MCP servers: github");
+    expect(stdout.toString()).toContain("Preview:");
+    expect(stdout.toString()).toContain("Rendered bundle:");
+    expect(stderr.toString()).toContain("Warning: Skill reference");
   });
 
   it("records apply failure when Codex preview validation fails", async () => {
@@ -565,7 +663,8 @@ describe("myai cli", () => {
 
     expect(code).toBe(0);
     expect(stdout.toString()).toContain("Bootstrapped personal profile 'code-review'");
-    expect(stdout.toString()).toContain(`Codex config: ${path.join(homeDir, ".codex", "config.toml")}`);
+    expect(stdout.toString()).toContain("Codex config synced.");
+    expect(stdout.toString()).not.toContain("Preview:");
     await expect(
       readFile(path.join(targetDir, ".myai-applied", "personal", "code-review", "profile.yaml"), "utf8"),
     ).resolves.toContain("scope: personal");

@@ -2,7 +2,7 @@
 
 # MyAI
 
-### Portable AI profiles for real teams
+### Portable AI profiles for developers and teams
 
 Save a working AI setup once. Restore it on a new machine. Reuse it across tools.
 
@@ -14,11 +14,11 @@ Save a working AI setup once. Restore it on a new machine. Reuse it across tools
 </p>
 
 <p>
-  <a href="#see-it-in-60-seconds"><strong>Quickstart</strong></a> ·
+  <a href="#import-your-current-claude-code-setup"><strong>Import</strong></a> ·
+  <a href="#new-team-member-quickstart"><strong>Bootstrap</strong></a> ·
   <a href="#install"><strong>Install</strong></a> ·
-  <a href="#why-teams-reach-for-it"><strong>Why</strong></a> ·
+  <a href="#why-developers-and-teams-reach-for-it"><strong>Why</strong></a> ·
   <a href="#current-support-matrix"><strong>Support</strong></a> ·
-  <a href="#what-myai-actually-manages"><strong>Model</strong></a> ·
   <a href="#docs"><strong>Docs</strong></a>
 </p>
 
@@ -29,9 +29,9 @@ Save a working AI setup once. Restore it on a new machine. Reuse it across tools
 > The AI workflow that "works" inside a team is usually real, valuable, and trapped on one laptop.  
 > MyAI turns that fragile setup into a reusable local-first `profile`.
 
-**Alpha status:** narrow by design. The current path is `Claude Code -> MyAI repo -> Codex CLI`.
+**Alpha status:** narrow by design. Shipping path today is `Claude Code -> MyAI repo -> Codex CLI`.
 
-## Why Teams Reach For It
+## Why Developers And Teams Reach For It
 
 When a team says "our AI workflow works," what that often means is:
 
@@ -42,24 +42,13 @@ When a team says "our AI workflow works," what that often means is:
 
 MyAI exists to make the setup itself portable, not just the output.
 
-## What MyAI Actually Manages
+## What You Can Do With It
 
-MyAI is a CLI for saving, restoring, and syncing working AI profiles across tools, machines, and team members.
-
-When a profile declares `sync.targets: [codex]`, both `profile apply` and `bootstrap` include a Codex sync preview in the logged bundle and restore the supported Codex config after materializing the profile.
-
-The core product object is a `profile`, which references reusable assets:
-
-- **Prompts** — reusable, proven prompts
-- **MCP Servers** — external tool connections
-- **Preferences** — team and personal rules, instructions
-- **Skills** — workflow templates (light support)
-
-In product terms:
-
-- `asset` = a stored building block
-- `profile` = a reusable bundle of assets
-- `workflow` = the task the profile helps complete
+- import a working Claude Code setup into a reusable profile
+- search and list saved profiles locally
+- apply a saved profile and roll it back safely
+- bootstrap a new teammate or new machine from team defaults
+- sync the supported Codex subset without rewriting config by hand
 
 ## Why It Feels Different
 
@@ -90,7 +79,8 @@ It tries to prove that one valuable setup can survive tool switching, teammate o
 | Apply and rollback | yes | Materializes to `.myai-applied/` with backup and restore flow |
 | Sync to Codex | yes | Current target is the supported Codex MCP subset |
 | Pilot reporting | yes | Repo-local summary for reuse, search, actor, and machine metrics |
-| Cursor / ChatGPT / hosted sync | not yet | Deliberately out of `v0.1` scope |
+| Cursor target | later, only after the current wedge proves out | Not implemented in `v0.1` |
+| ChatGPT / hosted sync | not yet | Deliberately out of `v0.1` scope |
 
 ### Core Principles
 
@@ -99,15 +89,6 @@ It tries to prove that one valuable setup can survive tool switching, teammate o
 - **Team-oriented** — workflows are inheritable, not trapped with one person
 - **Narrow first** — solve one portability path well before expanding
 - **Standard formats** — Markdown + YAML, no vendor lock-in
-
-## See It In 60 Seconds
-
-```bash
-myai profile list --repo ./examples/sample-repo
-myai profile show code-review --repo ./examples/sample-repo
-myai profile apply code-review --repo ./examples/sample-repo --target-dir /tmp/myai-demo --target-config /tmp/myai-demo-codex.toml --yes
-myai report summary --repo ./examples/sample-repo --since all
-```
 
 ## Install
 
@@ -128,29 +109,50 @@ Requirements:
 
 - Node.js 18+
 
-To create a fresh local repository instead of using the sample:
+## Import Your Current Claude Code Setup
 
 ```bash
+cd /path/to/your/claude-code-project
 myai init
+myai profile import --from claude-code
+myai profile list
 ```
 
-## How It Works
+If you want a stable name instead of using the current directory:
 
 ```bash
-myai init                                          # Initialize local repo
-myai profile import code-review --from claude-code # Import a working Claude Code profile
-myai profile list                                  # List saved profiles
-myai profile search review                         # Find profiles by keyword
-myai profile apply team-default --target-dir .     # Materialize a team profile and restore supported Codex config
-myai profile rollback team-default --target-dir .  # Restore the latest applied backup for a profile
-myai profile sync code-review --to codex           # Sync a profile to Codex CLI
-myai bootstrap team-default --target-dir .         # Bootstrap team defaults and restore supported Codex config
-myai report summary --since 14d                    # Summarize repo-local pilot reuse, search, and attribution metrics
+myai profile import code-review --from claude-code
 ```
 
-## Pilot Telemetry
+## What Import Reads From Claude Code
 
-For internal pilots, set stable operator and machine identifiers before running commands:
+- `CLAUDE.md`
+- matching project `mcpServers` from `~/.claude.json`
+- it does **not** import `.claude/settings.local.json`, local permissions, or chat history
+
+## New Team Member Quickstart
+
+```bash
+git clone <your-team-myai-repo> ~/.myai
+npm install -g @myai/cli
+cd /path/to/your/work-repo
+myai bootstrap team-default --target-dir . --yes
+```
+
+If the profile declares `sync.targets: [codex]`, bootstrap also restores the supported Codex config.
+
+## Try The Included Demo Repo
+
+```bash
+myai profile list --repo ./examples/sample-repo
+myai profile show code-review --repo ./examples/sample-repo
+myai profile apply code-review --repo ./examples/sample-repo --target-dir /tmp/myai-demo --yes
+```
+
+## Optional Pilot Telemetry
+
+You do not need any telemetry env vars for normal use.
+If you are running an internal pilot and want stable attribution across operators or machines, set:
 
 ```bash
 export MYAI_ACTOR_ID=pilot-operator-1

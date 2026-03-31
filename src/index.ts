@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import type { CommandRuntime, Profile, ProfileScope } from "./types.js";
 import { applyProfile, rollbackProfile } from "./lib/apply.js";
 import { importClaudeCodeProfile } from "./lib/claude.js";
@@ -78,6 +80,20 @@ function getBooleanFlag(parsed: ParsedArgs, name: string): boolean {
   return parsed.flags.get(name) === true;
 }
 
+function defaultImportSlug(sourceDir: string): string {
+  const basename = path.basename(path.resolve(sourceDir));
+  const slug = slugify(basename);
+  if (slug) {
+    return slug;
+  }
+
+  return `claude-import-${new Date().toISOString().slice(0, 10)}`;
+}
+
+function isVerbose(parsed: ParsedArgs): boolean {
+  return getBooleanFlag(parsed, "verbose");
+}
+
 function resolveTargetDir(parsed: ParsedArgs, runtime: CommandRuntime): string {
   const targetDir = getStringFlag(parsed, "target-dir");
   if (!targetDir) {
@@ -101,6 +117,43 @@ function getScopeFlag(parsed: ParsedArgs): ProfileScope | undefined {
 function printWarnings(runtime: CommandRuntime, warnings: string[]): void {
   for (const warning of warnings) {
     writeLine(runtime.stderr, `Warning: ${warning}`);
+  }
+}
+
+function printMaterializationSuccess(options: {
+  runtime: CommandRuntime;
+  headline: string;
+  targetPath: string;
+  backupPath: string | null;
+  previewPath: string;
+  bundlePath: string;
+  verbose: boolean;
+  syncResult?: {
+    targetConfigPath: string;
+    syncedServers: string[];
+  } | null;
+}): void {
+  const { runtime, headline, targetPath, backupPath, previewPath, bundlePath, verbose, syncResult } = options;
+
+  writeLine(runtime.stdout, headline);
+  writeLine(runtime.stdout, `Materialized to: ${targetPath}`);
+
+  if (backupPath) {
+    writeLine(runtime.stdout, verbose ? `Backup: ${backupPath}` : "Backup: created before re-apply.");
+  }
+
+  if (syncResult) {
+    if (verbose) {
+      writeLine(runtime.stdout, `Codex config: ${syncResult.targetConfigPath}`);
+      writeLine(runtime.stdout, `Synced MCP servers: ${syncResult.syncedServers.join(", ") || "(none)"}`);
+    } else {
+      writeLine(runtime.stdout, "Codex config synced.");
+    }
+  }
+
+  if (verbose) {
+    writeLine(runtime.stdout, `Preview: ${previewPath}`);
+    writeLine(runtime.stdout, `Rendered bundle: ${bundlePath}`);
   }
 }
 
@@ -157,17 +210,23 @@ function printHelp(runtime: CommandRuntime): void {
   writeLine(runtime.stdout);
   writeLine(runtime.stdout, "Commands:");
   writeLine(runtime.stdout, "  myai init [repo-path]");
-  writeLine(runtime.stdout, "  myai profile import <slug> --from claude-code [--scope team|personal]");
+  writeLine(
+    runtime.stdout,
+    "  myai profile import [slug] --from claude-code [--scope team|personal] [--source-dir path]",
+  );
   writeLine(runtime.stdout, "  myai profile list [--scope team|personal]");
   writeLine(runtime.stdout, "  myai profile show <slug> [--scope team|personal]");
   writeLine(runtime.stdout, "  myai profile search <query>");
   writeLine(
     runtime.stdout,
-    "  myai profile apply <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes]",
+    "  myai profile apply <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes] [--verbose]",
   );
   writeLine(runtime.stdout, "  myai profile rollback <slug> [--scope team|personal] [--target-dir path] [--yes]");
   writeLine(runtime.stdout, "  myai profile sync <slug> --to codex [--target-config path]");
-  writeLine(runtime.stdout, "  myai bootstrap <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes]");
+  writeLine(
+    runtime.stdout,
+    "  myai bootstrap <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes] [--verbose]",
+  );
   writeLine(runtime.stdout, "  myai report summary [--since 14d|all|YYYY-MM-DD] [--format text|json]");
 }
 
@@ -185,11 +244,6 @@ async function handleInit(parsed: ParsedArgs, runtime: CommandRuntime): Promise<
 }
 
 async function handleProfileImport(parsed: ParsedArgs, runtime: CommandRuntime): Promise<number> {
-  const slug = parsed.positional[0];
-  if (!slug) {
-    throw new Error("Usage: myai profile import <slug> --from claude-code");
-  }
-
   const sourceTool = requireStringFlag(parsed, "from");
   if (sourceTool !== "claude-code") {
     throw new Error("v0.1 only supports `--from claude-code`.");
@@ -198,10 +252,12 @@ async function handleProfileImport(parsed: ParsedArgs, runtime: CommandRuntime):
   const repoPath = await resolveRepoPath(runtime.cwd, runtime.env, getStringFlag(parsed, "repo"));
   const sourceDir = resolveInputPath(getStringFlag(parsed, "source-dir") ?? runtime.cwd, runtime.cwd);
   const scope = getScopeFlag(parsed) ?? "team";
+  const explicitSlug = parsed.positional[0];
+  const resolvedSlug = slugify(explicitSlug ?? defaultImportSlug(sourceDir));
 
   const result = await importClaudeCodeProfile({
     repoPath,
-    slug: slugify(slug),
+    slug: resolvedSlug,
     scope,
     sourceDir,
     homeDir: getHomeDir(runtime.env),
@@ -209,9 +265,13 @@ async function handleProfileImport(parsed: ParsedArgs, runtime: CommandRuntime):
   });
 
   writeLine(runtime.stdout, `Imported profile '${result.profile.slug}' into ${repoPath}`);
+  if (!explicitSlug) {
+    writeLine(runtime.stdout, `Derived slug: ${result.profile.slug}`);
+  }
   if (result.importedAssets.length > 0) {
     writeLine(runtime.stdout, `Assets: ${result.importedAssets.join(", ")}`);
   }
+  writeLine(runtime.stdout, "Reads: CLAUDE.md and matching project mcpServers from ~/.claude.json.");
   printWarnings(runtime, result.warnings);
   return 0;
 }
@@ -292,7 +352,7 @@ async function handleProfileApply(parsed: ParsedArgs, runtime: CommandRuntime): 
   const slug = parsed.positional[0];
   if (!slug) {
     throw new Error(
-      "Usage: myai profile apply <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes]",
+      "Usage: myai profile apply <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes] [--verbose]",
     );
   }
 
@@ -354,17 +414,18 @@ async function handleProfileApply(parsed: ParsedArgs, runtime: CommandRuntime): 
         : `profile applied to ${result.targetPath}`,
     });
 
-    writeLine(runtime.stdout, `Applied profile '${result.profile.slug}'.`);
-    writeLine(runtime.stdout, `Applied to: ${result.targetPath}`);
-    if (result.backupPath) {
-      writeLine(runtime.stdout, `Backup: ${result.backupPath}`);
-    }
-    writeLine(runtime.stdout, `Preview: ${result.previewPath}`);
-    writeLine(runtime.stdout, `Rendered bundle: ${result.bundlePath}`);
+    printMaterializationSuccess({
+      runtime,
+      headline: `Applied profile '${result.profile.slug}'.`,
+      targetPath: result.targetPath,
+      backupPath: result.backupPath,
+      previewPath: result.previewPath,
+      bundlePath: result.bundlePath,
+      verbose: isVerbose(parsed),
+      syncResult,
+    });
     printWarnings(runtime, result.warnings);
     if (syncResult) {
-      writeLine(runtime.stdout, `Codex config: ${syncResult.targetConfigPath}`);
-      writeLine(runtime.stdout, `Synced MCP servers: ${syncResult.syncedServers.join(", ") || "(none)"}`);
       printWarnings(runtime, syncResult.warnings);
     }
     return 0;
@@ -441,7 +502,7 @@ async function handleBootstrap(parsed: ParsedArgs, runtime: CommandRuntime): Pro
   const slug = parsed.positional[0];
   if (!slug) {
     throw new Error(
-      "Usage: myai bootstrap <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes]",
+      "Usage: myai bootstrap <slug> [--scope team|personal] [--target-dir path] [--target-config path] [--yes] [--verbose]",
     );
   }
 
@@ -502,17 +563,18 @@ async function handleBootstrap(parsed: ParsedArgs, runtime: CommandRuntime): Pro
         : `bootstrap applied to ${result.targetPath}`,
     });
 
-    writeLine(runtime.stdout, `Bootstrapped ${result.profile.scope} profile '${result.profile.slug}'.`);
-    writeLine(runtime.stdout, `Applied to: ${result.targetPath}`);
-    if (result.backupPath) {
-      writeLine(runtime.stdout, `Backup: ${result.backupPath}`);
-    }
-    writeLine(runtime.stdout, `Preview: ${result.previewPath}`);
-    writeLine(runtime.stdout, `Rendered bundle: ${result.bundlePath}`);
+    printMaterializationSuccess({
+      runtime,
+      headline: `Bootstrapped ${result.profile.scope} profile '${result.profile.slug}'.`,
+      targetPath: result.targetPath,
+      backupPath: result.backupPath,
+      previewPath: result.previewPath,
+      bundlePath: result.bundlePath,
+      verbose: isVerbose(parsed),
+      syncResult,
+    });
     printWarnings(runtime, result.warnings);
     if (syncResult) {
-      writeLine(runtime.stdout, `Codex config: ${syncResult.targetConfigPath}`);
-      writeLine(runtime.stdout, `Synced MCP servers: ${syncResult.syncedServers.join(", ") || "(none)"}`);
       printWarnings(runtime, syncResult.warnings);
     }
     return 0;

@@ -34,6 +34,7 @@ v0.1 commands:
 - non-zero exit codes indicate failure
 - warnings must be shown explicitly and must not be silently ignored
 - pilot attribution may be overridden with `MYAI_ACTOR_ID` and `MYAI_MACHINE_ID`
+- pilot attribution env vars are optional and intended for internal pilot analysis only
 
 ## `myai init`
 
@@ -65,11 +66,12 @@ Example:
 
 ```bash
 myai profile import code-review --from claude-code
+myai profile import --from claude-code
 ```
 
 Arguments:
 
-- `<slug>`: target profile slug
+- `[slug]`: optional target profile slug; if omitted, derive it from the source directory name
 
 Required flags:
 
@@ -82,6 +84,9 @@ Supported values in v0.1:
 Behavior:
 
 - read supported source inputs
+- import `CLAUDE.md` when present
+- import matching project `mcpServers` from `~/.claude.json` when present
+- do not import `.claude/settings.local.json` permissions or chat history
 - normalize source data into repository assets
 - create or update `profiles/<scope>/<slug>.yaml`
 - write warnings for unsupported or lossy fields
@@ -152,6 +157,7 @@ Example:
 
 ```bash
 myai profile apply team-default --target-dir . --target-config ~/.codex/config.toml
+myai profile apply team-default --yes --verbose
 ```
 
 Behavior:
@@ -165,6 +171,7 @@ Behavior:
 - apply profile assets using merge-safe semantics
 - sync supported Codex config when the profile declares `sync.targets: [codex]`
 - append an event log entry
+- print concise success output by default; `--verbose` reveals preview, bundle, backup, and sync detail paths
 
 Default rules:
 
@@ -230,6 +237,7 @@ Example:
 
 ```bash
 myai bootstrap team-default --target-dir . --target-config ~/.codex/config.toml
+myai bootstrap team-default --yes --verbose
 ```
 
 Behavior:
@@ -243,6 +251,7 @@ Behavior:
 - materialize files into `<target-dir>/.myai-applied/`
 - sync supported Codex config when the profile declares `sync.targets: [codex]`
 - append an event log entry
+- print concise success output by default; `--verbose` reveals preview, bundle, backup, and sync detail paths
 
 ## `myai report summary`
 
